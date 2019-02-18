@@ -1,0 +1,40 @@
+/dts-v1/;
+#include <dt-bindings/clock/npcm750_poleg-clock.h>
+#include <dt-bindings/gpio/gpio.h>
+/ {
+	model = "Nuvoton npcm750 Development Board";
+	compatible = "nuvoton,poleg", "nuvoton,npcm750";
+
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	chosen {
+		tick-timer = &timer0;
+	};
+
+	aliases {
+		console = "/serial@f0004000";
+	};
+
+	clks: clock-control@f0801000 {
+		compatible = "nuvoton,npcm750-clock";
+		#clock-cells = <1>;
+		reg = <0xf0801000 0x70>;
+		u-boot,dm-pre-reloc;
+        };
+
+	serial@f0004000 {
+		compatible = "nuvoton,npcm750-uart";
+		reg = <0xf0004000 0x20>;
+		id = <3>;
+		clocks = <&clks CLK_UART>;
+		clock-frequency = <24000000>;
+	};
+
+	timer0: timer@f0008000 {
+		compatible = "nuvoton,poleg-timer";
+		reg = <0xF0008000 0x100>;
+		clocks = <&clks CLK_TIMER>;
+	};
+
+};

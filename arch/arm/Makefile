@@ -83,6 +83,7 @@ machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
 machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
 machine-$(CONFIG_ARCH_VERSAL)		+= versal
 machine-$(CONFIG_ARCH_ZYNQMP_R5)	+= zynqmp-r5
+machine-$(CONFIG_ARCH_NPCM750)		+= npcm750
 
 machdirs := $(patsubst %,arch/arm/mach-%/,$(machine-y))
 

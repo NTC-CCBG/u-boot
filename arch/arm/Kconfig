@@ -1397,6 +1397,14 @@ config ARCH_ASPEED
 	select OF_CONTROL
 	imply CMD_DM
 
+config ARCH_NPCM750
+	bool "Support npcm750"
+	select CPU_V7A
+	select OF_CONTROL
+	select DM
+	help
+	  Support for Poleg BMC SoC family developed by Nuvoton Inc.
+
 endchoice
 
 config TI_SECURE_DEVICE
@@ -1506,6 +1514,8 @@ source "arch/arm/cpu/armv8/zynqmp/Kconfig"
 source "arch/arm/cpu/armv8/Kconfig"
 
 source "arch/arm/mach-imx/Kconfig"
+
+source "arch/arm/mach-npcm750/Kconfig"
 
 source "board/bosch/shc/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"

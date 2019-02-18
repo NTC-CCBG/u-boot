@@ -1,0 +1,18 @@
+if ARCH_NPCM750
+
+choice
+	prompt "NPCM board select"
+
+config TARGET_POLEG
+    bool "POLEG board"
+
+endchoice
+
+
+config SYS_SOC
+	default "npcm750"
+
+
+source "board/nuvoton/poleg/Kconfig"
+
+endif

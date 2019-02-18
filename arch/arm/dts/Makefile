@@ -574,6 +574,9 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7623n-bananapi-bpi-r2.dtb \
 	mt7629-rfb.dtb
 
+dtb-$(CONFIG_ARCH_NPCM750) += \
+	nuvoton-npcm750-evb.dtb
+
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here
