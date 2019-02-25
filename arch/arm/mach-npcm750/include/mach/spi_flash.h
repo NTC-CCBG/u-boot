@@ -34,6 +34,8 @@
 #define SPI_32K_BLOCK_ERASE_CMD	    0x52
 #define SPI_READ_JEDEC_ID_CMD       0x9F
 #define SPI_CHIP_ERASE_CMD          0xC7
-#define SPI_64K_BLOCK_ERASE_CMD	    0xD8
+#define SPI_EXTNADDR_WREAR_CMD		0xC5
+#define SPI_EXTNADDR_RDEAR_CMD		0xC8
+#define SPI_64K_BLOCK_ERASE_CMD		0xD8
 
 #endif

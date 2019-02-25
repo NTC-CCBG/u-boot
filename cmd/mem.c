@@ -21,6 +21,8 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
+#include <spi.h>
+#include <spi_flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -39,6 +41,7 @@ static ulong	mm_last_addr, mm_last_size;
 
 static	ulong	base_address = 0;
 
+static struct spi_flash *flash;
 /* Memory Display
  *
  * Syntax:
@@ -341,6 +344,103 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		puts ("done\n");
 		return 0;
 	}
+#endif
+#if defined(CONFIG_SPI_FLASH) && defined(CONFIG_DM_SPI_FLASH)
+#if defined(SPI_FLASH_BASE_ADDR) && defined(SPI_FLASH_SIZE)
+	if ((dest >= SPI_FLASH_BASE_ADDR) &&
+		((dest + count*size) < (SPI_FLASH_BASE_ADDR + SPI_FLASH_SIZE) )) {
+		int	ret;
+		char *src, *buf;
+		u32 len, sector_addr, sector_offset;
+		u32 dest_addr, end_addr;
+		int chunk_sz;
+
+		src = (char *)addr;
+		printf("Copy %lu bytes from 0x%lx to 0x%lx\n",
+			count*size, addr, dest);
+
+		if (flash == NULL) {
+			struct udevice *new;
+
+			ret = spi_flash_probe_bus_cs(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
+					CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE,
+					&new);
+			if (ret) {
+				return ret;
+			}
+
+			flash = dev_get_uclass_priv(new);
+		}
+		src = (char *)addr;
+		dest_addr = dest - SPI_FLASH_BASE_ADDR;
+		end_addr = dest_addr + count * size;
+		len = count * size;
+		/*
+		 * sector_addr                             sector_end
+		 * v                                          v
+		 * | <-- secotr_offset--> | <## chunk_sz ##>  |
+		 *                        ^
+		 * ----------------------> dest_addr
+		 */
+
+		buf = memalign(ARCH_DMA_MINALIGN, flash->erase_size);
+		printf("Copy %d bytes to flash\n", len);
+
+		while (dest_addr < end_addr) {
+			sector_offset = dest_addr % flash->erase_size;
+			chunk_sz = min(len, (flash->erase_size - sector_offset));
+
+			if (memcmp(src, (void *)(dest_addr + SPI_FLASH_BASE_ADDR),
+				chunk_sz) == 0) {
+				printf(".");
+				/* source and target are the same, skip programming */
+				dest_addr += chunk_sz;
+				src += chunk_sz;
+				len -= chunk_sz;
+				continue;
+			}
+
+			sector_addr = dest_addr - sector_offset;
+			if (chunk_sz < flash->erase_size) {
+
+				/* read sector to buf */
+				memcpy(buf, (void *)(sector_addr + SPI_FLASH_BASE_ADDR),
+					flash->erase_size);
+
+				/* erase sector */
+				ret = spi_flash_erase(flash, sector_addr, flash->erase_size);
+				printf("SF: %zu bytes @ %#x Erased: %s\n", (size_t)flash->erase_size,
+						sector_addr, ret ? "ERROR" : "OK");
+
+				/* update buf */
+				memcpy(buf + sector_offset, src, chunk_sz);
+
+				/* program sector */
+				ret = spi_flash_write(flash, sector_addr, flash->erase_size, buf);
+				printf("SF: %zu bytes @ %#x Written: %s\n", (size_t)flash->erase_size,
+						sector_addr, ret ? "ERROR" : "OK");
+			} else {
+				printf("#");
+				/* erase sector */
+				ret = spi_flash_erase(flash, sector_addr, flash->erase_size);
+				debug("SF: %zu bytes @ %#x Erased: %s\n", (size_t)flash->erase_size,
+						sector_addr, ret ? "ERROR" : "OK");
+
+				/* program sector */
+				ret = spi_flash_write(flash, sector_addr, chunk_sz, src);
+				debug("SF: %zu bytes @ %#x Written: %s\n", (size_t)chunk_sz,
+						sector_addr, ret ? "ERROR" : "OK");
+			}
+			dest_addr += chunk_sz;
+			src += chunk_sz;
+			len -= chunk_sz;
+		}
+		printf("\n");
+		free(buf);
+
+		return 0;
+	}
+#endif
 #endif
 
 	memcpy((void *)dest, (void *)addr, count * size);

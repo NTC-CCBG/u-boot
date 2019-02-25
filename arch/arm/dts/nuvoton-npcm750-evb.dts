@@ -14,6 +14,7 @@
 
 	aliases {
 		console = "/serial@f0004000";
+		spi0 = "/fiu0@fb000000";
 	};
 
 	clks: clock-control@f0801000 {
@@ -21,7 +22,7 @@
 		#clock-cells = <1>;
 		reg = <0xf0801000 0x70>;
 		u-boot,dm-pre-reloc;
-        };
+	};
 
 	serial@f0004000 {
 		compatible = "nuvoton,npcm750-uart";
@@ -35,6 +36,20 @@
 		compatible = "nuvoton,poleg-timer";
 		reg = <0xF0008000 0x100>;
 		clocks = <&clks CLK_TIMER>;
+	};
+
+	fiu0@fb000000 {
+		compatible = "nuvoton,npcm750-fiu0";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0xfb000000 0x1000>;
+		index = <0>;
+		spi-max-frequency = <66000000>;
+		spi_flash@0 {
+			compatible = "spi-flash";
+			reg = <0>; /* Chip select 0 */
+			memory-map = <0x80000000 0x4000000>;
+		};
 	};
 
 };

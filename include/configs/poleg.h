@@ -26,7 +26,11 @@
 #define CONFIG_SYS_PROMPT               "U-Boot>"
 #endif
 
-#define CONFIG_ENV_SIZE                  0x10000              /* Changed on UBOOT 201510.10.6.9 ! Total Size of Environment Sector (64K)*/
+#define CONFIG_ENV_SIZE                  0x10000
+#define CONFIG_ENV_OFFSET               (0x100000)
+#define CONFIG_ENV_ADDR                 (0x80000000 + CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_SECT_SIZE            0x1000
+
 #define CONFIG_SYS_MALLOC_LEN           (CONFIG_ENV_SIZE + 1024*1024)
 
 #define CONFIG_SYS_MAXARGS              16
@@ -43,13 +47,12 @@
 
 #define CONFIG_STANDALONE_LOAD_ADDR     0x10000000
 
+#define SPI_FLASH_BASE_ADDR				0x80000000
+#define SPI_FLASH_SIZE					0x4000000
+
 /* 16MB Graphics Memory size to hide + 32MB for VCD ECE DVC. */
 #define CONFIG_SYS_MEM_TOP_HIDE   ((16 << 20) + (32 << 20))
 #define PHYS_SDRAM_1			        CONFIG_SYS_SDRAM_BASE
-
-#define CONFIG_ENV_OFFSET               (3 << 20)
-#define CONFIG_ENV_ADDR                 (0x80000000 + CONFIG_ENV_OFFSET)
-#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_BAUDRATE                 115200
 #define CONFIG_SYS_BAUDRATE_TABLE       {115200, 57600, 38400}

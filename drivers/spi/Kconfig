@@ -286,6 +286,11 @@ config ZYNQMP_GQSPI
 	  This option is used to enable ZynqMP QSPI controller driver which
 	  is used to communicate with qspi flash devices.
 
+config NPCM750_FIU_SPI
+	bool "FIU driver for NPCM750"
+	help
+	  Flash Interface Unit controller for NPCM750.
+
 endif # if DM_SPI
 
 config SOFT_SPI
